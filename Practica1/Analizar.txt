@@ -1,0 +1,5 @@
+Palabra reservada:   for, do, while, if, else
+
+Paréntesis de apertura: (    
+
+Paréntesis de Cierre:  )
