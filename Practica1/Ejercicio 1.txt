@@ -1,0 +1,8 @@
+Act 1.2 Práctica I. Unidad 1. Ejercicios Léxico.- Realiza el siguiente ejercicio Léxico for do while if else PYTHON.2024
+El alumno realizará  la siguiente práctica de analizador léxico, sera revisado y calificado en clases:
+
+Palabra reservada:   for, do, while, if, else
+
+Paréntesis de apertura: (    
+
+Paréntesis de Cierre:  )
