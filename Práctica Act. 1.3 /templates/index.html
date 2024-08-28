@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análisis Léxico</title>
+    <style>
+  <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .contenedor {
+            width: 500px;
+            margin: 50px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        input[type="file"] {
+            margin-bottom: 15px;
+            padding: 8px;
+            border: 2px solid  #007BFF;
+            border-radius: 4px;
+        }
+
+        h1 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 2px solid #007BFF;
+            border-radius: 4px;
+            font-family: monospace;
+            resize: none;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #007BFF;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 30%;
+            box-sizing: border-box;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .codigo {
+            margin-top: 20px;
+            text-align: left;
+            background-color: #f9f9f9;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            font-family: monospace;
+        }
+
+        .contenedor_tabla {
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;               
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #007BFF;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .file-input-label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            text-align: left;
+            color:  #000000;
+        }
+
+    </style>
+    </head>
+<body>
+    <div class="contenedor">
+        <h1>Análisis Léxico</h1>
+        <form method="POST" action="">
+            <label class="file-input-label" for="file">Seleccionar archivo:</label>
+            <input type="file" id="file">
+            <textarea id="code" name="code" placeholder="Inserta tu código aquí">{{ code }}</textarea>
+            <button type="submit">Analizar</button>
+        </form>
+        <div class="contenedor_tabla">
+            <h2>Tokens Analizados</h2>
+<table>
+    <tr>
+        <th>Token</th>
+        <th>Lexema</th>
+        <th>Línea</th>
+    </tr>
+    {% if tokens %}
+        {% for token in tokens %}
+        <tr>
+            <td>{{ token.category }}</td>
+            <td>{{ token.value }}</td>
+            <td>{{ token.lineno }}</td>
+        </tr>
+        {% endfor %}
+    {% else %}
+    <tr><td colspan="3">No se encontraron tokens</td></tr>
+    {% endif %}
+</table>
+        </div>
+        <div class="contenedor_tabla">
+            <h2>Conteo de Categorías de Tokens</h2>
+            <table>
+                <tr>
+                    <th>Categoría</th>
+                    <th>Cantidad</th>
+                </tr>
+                {% if category_count %}
+                    {% for category, count in category_count %}
+                    <tr>
+                        <td>{{ category }}</td>
+                        <td>{{ count }}</td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                <tr><td colspan="2">No se encontraron categorías</td></tr>
+                {% endif %}
+            </table>
+        </div>
+        <div class="codigo">
+            <h2>Datos Ingresados:</h2>
+            <pre>{{ code }}</pre>
+            {% if tokens %}
+                <p>Se encontraron {{ tokens|length }} tokens.</p>
+            {% else %}
+                <p>No se encontraron tokens</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- JavaScript para cargar el contenido del archivo en el textarea -->
+    <script>
+        document.getElementById('file').addEventListener('change', function(e) {
+            var file = e.target.files[0];
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('code').value = e.target.result;
+                };
+                reader.readAsText(file);
+            }
+        });
+    </script>
+</body>
+</html>
