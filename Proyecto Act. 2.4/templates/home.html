@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analizador Léxico y Sintáctico</title>
+<style>
+        :root {
+          --primary-color: #007BFF;
+          --secondary-color: #333;
+          --background-color: #f9f9f9;
+          --text-color: #000000;
+        }
+
+        body {
+            background: var(--background-color);
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 10px;
+        }
+
+        .contenedor {
+            display: grid;
+            grid-template-columns: 1fr;
+            grid-gap: 20px;
+            width: 700px;
+            margin: 50px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .izqui{
+            text-align: justify;
+        }
+
+        input[type="file"] {
+            margin-bottom: 15px;
+            padding: 8px;
+            border: 2px solid var(--primary-color);
+            border-radius: 10px;
+        }
+
+        h1 {
+            font-size: 36px;
+            font-weight: bold;
+            font-family: Arial, sans-serif;
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 2px solid var(--primary-color);
+            border-radius: 4px;
+            font-family: monospace;
+            resize: none;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            padding: 10px 10px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 30%;
+            box-sizing: border-box;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            transition: 0.3s;
+        }
+
+        button:hover {
+            transform: scale(1.1);
+        }
+
+        .codigo {
+            margin-top: 20px;
+            text-align: left;
+            background-color: var(--background-color);
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            font-family: monospace;
+        }
+
+        .contenedor_tabla {
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        table {    
+            border-collapse:collapse;
+            margin-top: 10px;               
+        }
+
+        th, td {
+            padding: 4px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: var(--text-color);
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #e0e0e0;
+        }
+
+        .file-input-label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            text-align: left;
+            color: var(--text-color);
+        }
+
+        .mensaje-vacio {
+            margin-top: 20px;
+            padding: 15px;
+            border: 2px solid #ff2700; /* Color de borde */
+            background-color: white; /* Fondo suave */
+            color: #ff2700; /* Color de texto */
+            font-size: 18px; /* Tamaño del texto */
+            text-align: center;
+            font-weight: bold;
+            border-radius: 10px; /* Bordes redondeados */
+            width: 50%; /* Ajustar el ancho */
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style></head>
+<body>
+<div class="contenedor">
+    <h1>Analizador Léxico y Sintáctico</h1>
+    <form method="POST" action="">
+        <label class="file-input-label" for="file">Seleccionar archivo:</label>
+        <input type="file" id="file"><br>
+        <label class="file-input-label" for="code">Ingrese el código a analizar:</label>
+        <textarea id="code" name="code" placeholder="Escribe tu código aquí...">{{ code }}</textarea><br><br>
+        <button type="submit">Analizar</button>
+    </form>
+
+    {% if code %}
+        {% if tokens %}
+        <div class="contenedor_tabla">
+            <h2>Tokens Analizados</h2>
+            <table style="width: 100%;">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Token</th>
+                        <th>Lexema</th>
+                        <th>Línea</th>
+                        <th>Posición</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for i in range(0, tokens|length) %}
+                    <tr>
+                        <td>{{ i+1 }}</td>
+                        <td>{{ tokens[i].type }}</td>
+                        <td>{{ tokens[i].value }}</td>
+                        <td>{{ tokens[i].line }}</td>
+                        <td>{{ tokens[i].pos }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    
+        {% if category_count %}
+        <div class="contenedor_tabla">
+            <h2>Conteo de Categorías de Tokens</h2>
+            <table style="margin: 0 auto; width: 50%; border-collapse: collapse;">
+                <tr>
+                    <th>Categoría</th>
+                    <th>Cantidad</th>
+                </tr>
+                {% for category, count in category_count %}
+                <tr>
+                    <td>{{ category }}</td>
+                    <td>{{ count }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        {% else %}
+        <div class="contenedor_tabla">
+            <p>No se encontraron categorías.</p>
+        </div>
+        {% endif %}
+    
+        {% if resultado_sintactico %}
+        <div class="codigo">
+            <h2>Resultado del análisis sintáctico:</h2>
+            <ul>
+                {% for resultado in resultado_sintactico %}
+                <li>{{ resultado }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    
+        <div class="codigo">
+            <h2>Datos Ingresados:</h2>
+            <pre>{{ code }}</pre>
+            {% if tokens %}
+                <p>Se encontraron {{ tokens|length }} tokens.</p>
+            {% else %}
+                <p>No se encontraron tokens</p>
+            {% endif %}
+        </div>
+    {% else %} 
+    <div class="mensaje-vacio">
+        No tienes nada escrito.
+    </div>
+    {% endif %}
+</div>
+    <!-- JavaScript para cargar el contenido del archivo en el textarea -->
+    <script>
+        document.getElementById('file').addEventListener('change', function(e) {
+            var file = e.target.files[0];
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('code').value = e.target.result;
+                };
+                reader.readAsText(file);
+            }
+        });
+    </script>
+
+</body>
+</html>
