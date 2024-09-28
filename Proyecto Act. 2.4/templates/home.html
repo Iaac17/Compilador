@@ -80,8 +80,26 @@
         button:hover {
             transform: scale(1.1);
         }
-
         .codigo {
+                margin-top: 20px;
+                text-align: left;
+                padding: 10px;
+                border: 1px solid #ddd;
+                border-radius: 20px;
+                font-family: monospace;
+}
+
+.success {
+    background-color: #d4edda; /* Verde claro */
+    color: #155724; /* Texto verde oscuro */
+}
+
+.error {
+    background-color: #f8d7da; /* Rojo claro */
+    color: #721c24; /* Texto rojo oscuro */
+}
+
+        .codigo1 {
             margin-top: 20px;
             text-align: left;
             background-color: var(--background-color);
@@ -141,6 +159,7 @@
             width: 50%; /* Ajustar el ancho */
             margin-left: auto;
             margin-right: auto;
+        
         }
     </style></head>
 <body>
@@ -153,9 +172,27 @@
         <textarea id="code" name="code" placeholder="Escribe tu código aquí...">{{ code }}</textarea><br><br>
         <button type="submit">Analizar</button>
     </form>
-
     {% if code %}
-        {% if tokens %}
+<div class="codigo {% if has_error %}error{% else %}success{% endif %}">
+    {% if resultado_sintactico %}
+        <h2>Resultado del análisis sintáctico:</h2>
+        <ul>
+            {% for resultado in resultado_sintactico %}
+                <li>{{ resultado }}</li>
+            {% endfor %}
+        </ul>
+     </div>
+    {% endif %}    
+            <div class="codigo1" >
+            <h2>Datos Ingresados:</h2>
+            <pre>{{ code }}</pre>
+            {% if tokens %}
+                <p>Se encontraron {{ tokens|length }} tokens.</p>
+            {% else %}
+                <p>No se encontraron tokens</p>
+            {% endif %}
+        </div>
+    {% if tokens %}
         <div class="contenedor_tabla">
             <h2>Tokens Analizados</h2>
             <table style="width: 100%;">
@@ -204,27 +241,7 @@
             <p>No se encontraron categorías.</p>
         </div>
         {% endif %}
-    
-        {% if resultado_sintactico %}
-        <div class="codigo">
-            <h2>Resultado del análisis sintáctico:</h2>
-            <ul>
-                {% for resultado in resultado_sintactico %}
-                <li>{{ resultado }}</li>
-                {% endfor %}
-            </ul>
-        </div>
-        {% endif %}
-    
-        <div class="codigo">
-            <h2>Datos Ingresados:</h2>
-            <pre>{{ code }}</pre>
-            {% if tokens %}
-                <p>Se encontraron {{ tokens|length }} tokens.</p>
-            {% else %}
-                <p>No se encontraron tokens</p>
-            {% endif %}
-        </div>
+        
     {% else %} 
     <div class="mensaje-vacio">
         No tienes nada escrito.
