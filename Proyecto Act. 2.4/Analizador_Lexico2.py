@@ -3,14 +3,14 @@ from collections import defaultdict
 
 # Definir los tokens para el analizador léxico
 tokens = (
-    'RESERVADA', 'RESERVADO', 'DELIMITADOR', 'SIMBOLO', 'OPERADOR',
-    'IDENTIFICADOR', 'ENTERO', 'MENORIGUAL', 'PLUSPLUS',
-    'COMDOB', 'DOSPUNTO', 'SUMA'
+    'RESERVADA', 'RESERVADO', 'DELIMITADOR', 'SIMBOLO', 'OPERADOR', 
+    'IDENTIFICADOR', 'ENTERO',  'PLUSPLUS',
+    'COMDOB', 'DOSPUNTO', 'SUMA', 'RESTA'
 )
 
 # Expresiones regulares para los tokens
-t_MENORIGUAL = r'<='
 t_PLUSPLUS = r'\+\+'
+t_RESTA = r'\-'
 t_COMDOB = r'"'
 t_DOSPUNTO = r':'
 t_SUMA = r'\+'
@@ -33,7 +33,7 @@ def t_SIMBOLO(t):
     return t
 
 def t_OPERADOR(t):
-    r'='
+    r'=|<=|>='
     return t
 
 def t_ENTERO(t):
@@ -50,23 +50,22 @@ t_ignore = ' \t'
 # Manejo de nuevas líneas
 def t_newline(t):
     r'\n+'
-    t.lexer.lineno += len(t.value)
+    t.lexer.lineno += len(t.value)  # Incrementa el número de líneas correctamente
 
-# Manejo de errores
+# Manejo de errores léxicos mejorado
 def t_error(t):
-    print(f"Illegal character {t.value[0]}")
+    print(f"Carácter ilegal '{t.value[0]}' en la línea {t.lineno}, posición {t.lexpos}")
     t.lexer.skip(1)
 
 # Construir el analizador léxico
 lexer = lex.lex()
 
-# Función para realizar el análisis léxico con contador de categorías
 def realizar_analisis_lexico(code):
     lexer.input(code)
     tokens_lexico = []
     category_count = defaultdict(int)  # Contador para las categorías
-    lexer.lineno = 1
-    
+    lexer.lineno = 1  # Reiniciar el contador de líneas
+
     for tok in lexer:
         # Registrar el tipo de token y aumentar el contador de esa categoría
         category_count[tok.type] += 1
@@ -75,11 +74,12 @@ def realizar_analisis_lexico(code):
         tokens_lexico.append({
             'type': tok.type,
             'value': tok.value,
-            'line': tok.lineno,
+            'line': tok.lineno,  
             'pos': tok.lexpos
-        })
-    
+        })        
     # Convertir el defaultdict a una lista de tuplas
     category_count_list = list(category_count.items())
     
-    return tokens_lexico, category_count_list
+    total_lineas = lexer.lineno - 1 
+    
+    return tokens_lexico, category_count_list, total_lineas 
