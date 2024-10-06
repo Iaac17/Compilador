@@ -219,12 +219,11 @@
             <thead>
               <tr>
                 <th>TOKEN</th>
-                <th>RESERVADA</th>
-                <th>RESERVADO</th>
-                <th>IDENTIFICADOR</th>
-                <th>NUMERO</th>
-                <th>SIMBOLO</th>
-                <th>DELIMITADOR</th>
+                <th>Prioridad</th>
+                <th>ID</th>
+                <th>Numero</th>
+                <th>Simbolo</th>
+                <th>Delimitador</th>
                 <th>Otros</th>
                 <th>TIPO</th>
               </tr>
@@ -233,22 +232,40 @@
               {% for token in tokens %}
               <tr>
                 <td>{{ token['value'] }}</td>
-                <td>{{ 'X' if token['type'] == 'RESERVADA' else '' }}</td>
-                <td>{{ 'X' if token['type'] == 'RESERVADO' else '' }}</td>
+                <td>
+                  {{ 'X' if token['type'] in ['RESERVADA', 'RESERVADO'] else ''
+                  }}
+                </td>
                 <td>{{ 'X' if token['type'] == 'IDENTIFICADOR' else '' }}</td>
                 <td>{{ 'X' if token['type'] == 'ENTERO' else '' }}</td>
-                <td>{{ 'X' if token['type'] == 'SIMBOLO' else '' }}</td>
-                <td>{{ 'X' if token['type'] == 'DELIMITADOR' else '' }}</td>
-                <!-- Otros tipos de tokens -->
                 <td>
-                  {% set other_types =
-                  ['OPERADOR','PLUSPLUS','COMDOB','DOSPUNTO','SUMA','RESTA'] %}
-                  {{ 'X' if token['type'] in other_types else '' }}
+                  {{ 'X' if token['type'] in ['SIMBOLO', 'COMA'] else '' }}
+                </td>
+                <td>
+                  {{ 'X' if token['type'] in ['PARIZQ', 'PARDER', 'LLAIZQ',
+                  'LLADER'] else '' }}
+                </td>
+                <td>
+                  {{ 'X' if token['type'] in ['OPERADOR', 'PLUSPLUS', 'COMDOB',
+                  'DOSPUNTO', 'SUMA', 'RESTA'] else '' }}
                 </td>
                 <td>{{ token['type'] }}</td>
               </tr>
+              {% endfor %}
             </tbody>
-            {% endfor %}
+            <!-- Fila de conteo -->
+            {% if contador %}
+            <tr>
+              <th>Cantidad:</th>
+              <td>{{ contador['Reservada']+contador['Reservado'] }}</td>
+              <td>{{ contador['Identificador'] }}</td>
+              <td>{{ contador['Numero'] }}</td>
+              <td>{{ contador['Simbolo'] }}</td>
+              <td>{{ contador['Delimitador'] }}</td>
+              <td>{{ contador['Desconocido'] }}</td>
+              <td>Total: {{ tokens|length }}</td>
+            </tr>
+            {% endif %}
           </table>
         </div>
       </div>
@@ -275,7 +292,7 @@
           </table>
         </div>
       </div>
-      {% endif %} {% if category_count %}
+      {% endif %}{% if category_count %}
       <div class="codigo1">
         <div class="contenedor_tabla">
           <h2>Conteo de Categorías de Tokens</h2>
