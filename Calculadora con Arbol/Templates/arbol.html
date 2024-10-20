@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Árbol de Expresión</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #080827;
+            margin: 0;
+            padding: 0;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #arbolContainer {
+            background-color: #360f0f;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+            width: 80%;
+            max-width: 800px;
+            height: 400px;
+            overflow: hidden; /* Cambiar a hidden para que no aparezcan barras de desplazamiento */
+            margin-bottom: 20px;
+        }
+
+        #arbol {
+            display: block; /* Asegura que el SVG se comporte como un bloque */
+            width: 100%; /* Hacer que el SVG ocupe todo el ancho */
+            height: 100%; /* Hacer que el SVG ocupe toda la altura */
+        }
+
+        .error {
+            color: red;
+        }
+        #backButton {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        #backButton:hover {
+            background-color: #0056b3;
+        }
+        #expresion {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #ff9800;
+        }
+    </style>
+</head>
+<body>
+    <h1>ÁRBOL DE EXPRESIONES:</h1>
+    <div id="expresion"></div>
+    <br>
+    <div id="arbolContainer">
+        <svg id="arbol"></svg>
+    </div>
+    <button id="backButton" onclick="window.location.href='/?expresion=' + encodeURIComponent(new URLSearchParams(window.location.search).get('expresion'))">Regresar a la calculadora</button>
+    <br>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function () {
+            const expresion = new URLSearchParams(window.location.search).get('expresion');
+            document.getElementById('expresion').innerText = `La expresión a calcular es: ${expresion}`;
+            
+            const respuesta = await fetch('/generar_arbol', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ expresion })
+            });
+            const data = await respuesta.json();
+            console.log(data);  // Asegúrate de que el tipo es 'NUMERO' o 'OPERADOR'
+
+            if (data.error) {
+                const arbolContainer = document.getElementById('arbolContainer');
+                arbolContainer.innerHTML = `<p class="error">Error: ${data.error}</p>`;
+                return;
+            }
+
+            const width = 500;
+            const height = 300;
+
+            const svg = d3.select("#arbol")
+                .attr("width", width)
+                .attr("height", height);
+
+            // Creación de la jerarquía del árbol
+            const root = d3.hierarchy(data);
+
+            const treeLayout = d3.tree().size([width - 100, height - 100]);
+            treeLayout(root);
+
+            const g = svg.append("g")
+                .attr("transform", "translate(50, 50)");
+
+            // Dibujar las líneas entre nodos
+            g.selectAll("line")
+                .data(root.links())
+                .enter()
+                .append("line")
+                .attr("x1", d => d.source.x)
+                .attr("y1", d => d.source.y)
+                .attr("x2", d => d.target.x)
+                .attr("y2", d => d.target.y)
+                .attr("stroke", "Gray");
+
+            // Dibujar los nodos
+            const node = g.selectAll("g.node")
+                .data(root.descendants())
+                .enter()
+                .append("g")
+                .attr("class", "node")
+                .attr("transform", d => `translate(${d.x}, ${d.y})`);
+
+                node.append("circle")
+                .attr("r", 20)
+                .attr("fill", d => {
+                    console.log(d);  // Revisa que 'd.data' esté definido y tenga el campo 'tipo'
+                    return d.data && d.data.tipo === "OPERADOR" ? "#d5dc23" : "#28b8c8";  // Default a azul si no es operador
+                });
+                        node.append("text")
+                .attr("dy", ".35em")
+                .attr("text-anchor", "middle")
+                .text(d => d.data.valor);
+
+            // Añadir zoom y pan
+            const zoom = d3.zoom()
+                .scaleExtent([0.7, 5])
+                .on("zoom", (event) => {
+                    g.attr("transform", event.transform);
+                });
+
+            svg.call(zoom);
+        });
+    </script>
+</body>
+</html>
