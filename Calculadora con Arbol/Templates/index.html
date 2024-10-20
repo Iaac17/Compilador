@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1e1e2d;
+            margin: 0;
+            padding: 0;
+            color: white;
+            display: flex;
+            flex-direction: column; /* Cambia para permitir que el título esté arriba */
+            align-items: center; /* Centra horizontalmente */
+            justify-content: center;
+            height: 95vh;
+        }
+
+        .contenedor-titulo {
+            width: 100%; /* Para que ocupe todo el ancho */
+            text-align: center; /* Centrar el título */
+            margin-bottom: 10px; /* Espacio entre el título y el resto */
+        }
+        .contenedor-principal {
+            display: flex;
+            gap: 40px; 
+            justify-content: center;
+            align-items: center;
+        }
+        .contenedor {
+            width: 400px;
+            background-color: #080827;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(134, 90, 90, 0.5);
+            text-align: center;
+        }
+        .pantalla {
+            width: 100%;
+            height: 50px;
+            background-color: #ffffff; 
+            color: #000000;
+            font-size: 24px;
+            text-align: right;
+            padding: 10px;
+            box-sizing: border-box;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 2px solid #ff0202;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        .botones {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        button {
+            padding: 20px;
+            font-size: 18px;
+            background-color: #686871;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #080827;
+        }
+        .boton-igual {
+            background-color: #ff9800;
+            color: white;
+        }
+        .boton-operacion {
+            background-color: #00f8b5;
+            color: white;
+        }
+        .boton-clear {
+            background-color: #f44336;
+            color: white;
+        }
+        .boton-tree {
+            background-color: #007bff;
+            color: white;
+        }
+        .contenedor-tabla {
+            width: 400px; /* Ancho de la tabla */
+            max-height: 500px; /* Altura máxima antes de que se active el scroll */
+            overflow-y: auto; /* Scroll vertical cuando haya más contenido del permitido */
+            margin-left: 20px; /* Mantiene el margen ya establecido */
+        }
+        thead {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        table {
+            width: 100%; /* Asegura que la tabla use todo el ancho del contenedor */
+            border-collapse: collapse;
+            background-color: #333;
+            color: white;
+            border: 1px solid #ddd;
+        }
+
+        table th, table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        table th {
+            background-color: #555;
+        }
+
+        table td {
+            background-color: #1e1e2d;
+        }
+        h1 {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div class="contenedor-titulo">
+    <h1>Calculadora con Arbol</h1>
+</div>
+<div class="contenedor-principal">
+    <div class="contenedor">
+        <div class="pantalla" id="pantalla">0</div>
+        <div class="botones">
+            <button class="boton-operacion">(</button>
+            <button class="boton-operacion">)</button>
+            <button class="boton-clear">C</button>
+            <button class="boton-operacion">/</button>
+
+            <button>7</button>
+            <button>8</button>
+            <button>9</button>
+            <button class="boton-operacion">*</button>
+
+            <button>4</button>
+            <button>5</button>
+            <button>6</button>
+            <button class="boton-operacion">-</button>
+
+            <button>1</button>
+            <button>2</button>
+            <button>3</button>
+            <button class="boton-operacion">+</button>
+
+            <button>0</button>
+            <button>.</button>
+            <button class="boton-igual">=</button>
+            <button class="boton-tree" onclick="mostrarArbol()">Tree</button>
+        </div>
+    </div>
+
+    <div class="contenedor-tabla">
+        <table>
+            <thead>
+                <tr>
+                    <th>Token</th>
+                    <th>Tipo</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="2" id="mensaje-vacio">Para ver el árbol, primero debes realizar una operación para que se generen los tokens.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    const pantalla = document.getElementById('pantalla');
+    const tablaTokens = document.querySelector('tbody');
+    const mensajeVacio = document.getElementById('mensaje-vacio');
+    let operacion = '';
+    let expresionGuardada = '';  // Variable para guardar la última expresión evaluada
+
+    // Manejar el parámetro de expresión en la URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const expresionDesdeUrl = urlParams.get('expresion');
+    if (expresionDesdeUrl) {
+        operacion = expresionDesdeUrl;
+        pantalla.textContent = operacion;
+    }
+
+    const botones = document.querySelectorAll('button');
+    botones.forEach(boton => {
+        boton.addEventListener('click', async () => {
+            const valor = boton.textContent;
+
+            if (valor === 'C') {
+                operacion = '';
+                pantalla.textContent = '0';
+                limpiarTabla();
+            } else if (valor === '=') {
+                await procesarOperacion(); // Procesar la operación cuando se presiona '='
+            } else if (valor !== 'Tree') {
+                operacion += valor;
+                pantalla.textContent = operacion; // Muestra la expresión en la pantalla
+            }
+        });
+    });
+
+    async function procesarOperacion() {
+        expresionGuardada = operacion;
+        
+        const resultado = await enviarOperacion(operacion);
+        if (resultado !== null) {
+            pantalla.textContent = resultado; // Muestra el resultado en la pantalla
+            operacion = ''; // Reinicia la operación después de mostrar el resultado
+        } else {
+            pantalla.textContent = 'error'; // Mensaje de error más descriptivo
+        }
+    }
+    
+    async function enviarOperacion(expresion) {
+        const response = await fetch('/analizar', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ expresion }),
+        });
+    
+        const tokens = await response.json();
+        console.log(tokens); // Agrega esta línea para ver la respuesta del servidor
+        actualizarTabla(tokens);
+        
+        // Obtener el resultado del token
+        const resultadoToken = tokens.find(token => token.tipo === 'Resultado'); // Cambiado a 'Resultado'
+        if (resultadoToken) {
+            return resultadoToken.token; // Retorna el resultado para mostrar en pantalla
+        }
+    
+        return null; // Si no hay resultado, retorna null
+    }
+        
+    async function mostrarArbol() {
+        if (expresionGuardada) {
+            // Redirige a la página del árbol con la última expresión guardada
+            window.location.href = `/arbol?expresion=${encodeURIComponent(expresionGuardada)}`;
+        } else if (operacion) {
+            // Si hay una operación en curso, procesar para mostrar los tokens
+            await procesarOperacion(); // Llama a procesarOperacion para mostrar tokens en la tabla
+        }
+    }
+    
+    function actualizarTabla(tokens) {
+        limpiarTabla(); // Llama a limpiarTabla para eliminar el mensaje vacío
+        if (tokens.length === 0) {
+            mostrarMensajeVacio(); // Si no hay tokens, muestra el mensaje
+        } else {
+            tokens.forEach(token => {
+                const fila = document.createElement('tr');
+                const celdaToken = document.createElement('td');
+                const celdaTipo = document.createElement('td');
+
+                celdaToken.textContent = token.token;
+                celdaTipo.textContent = token.tipo;
+
+                fila.appendChild(celdaToken);
+                fila.appendChild(celdaTipo);
+                tablaTokens.appendChild(fila);
+            });
+        }
+    }
+
+    function limpiarTabla() {
+        tablaTokens.innerHTML = ''; // Limpia la tabla
+    }
+
+    function mostrarMensajeVacio() {
+        const fila = document.createElement('tr');
+        fila.innerHTML = '<td colspan="2" id="mensaje-vacio">Realiza una operación para obtener los tokens</td>';
+        tablaTokens.appendChild(fila);
+    }
+
+    // Manejo de entradas del teclado
+    document.addEventListener('keydown', async (event) => {
+        const tecla = event.key;
+
+        if ((tecla >= '0' && tecla <= '9') || tecla === '+' || tecla === '-' || 
+            tecla === '*' || tecla === '/' || tecla === '%' || tecla === '(' || tecla === ')' || tecla === '.') {
+            operacion += tecla;
+            pantalla.textContent = operacion; // Actualiza la pantalla al presionar una tecla
+        } else if (tecla === 'Enter') {
+            await procesarOperacion(); // Procesa la operación al presionar 'Enter'
+        } else if (tecla === 'Backspace') {
+            operacion = operacion.slice(0, -1);
+            pantalla.textContent = operacion || '0'; // Muestra 0 si la operación está vacía
+        } else if (tecla === 'Escape') {
+            operacion = '';
+            pantalla.textContent = '0';
+            limpiarTabla();
+        }
+    });
+</script>
+</body>
+</html>
