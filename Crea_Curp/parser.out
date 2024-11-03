@@ -1,0 +1,183 @@
+Created by PLY version 3.11 (http://www.dabeaz.com/ply)
+
+Unused terminals:
+
+    OPERADOR
+    SIMBOLO
+
+Grammar
+
+Rule 0     S' -> expresion
+Rule 1     expresion -> nombre fecha genero estado
+Rule 2     nombre -> PRIORIDAD IDENTIFICADOR IDENTIFICADOR IDENTIFICADOR
+Rule 3     nombre -> PRIORIDAD IDENTIFICADOR IDENTIFICADOR IDENTIFICADOR IDENTIFICADOR
+Rule 4     fecha -> PRIORIDAD ENTERO ENTERO ENTERO
+Rule 5     genero -> PRIORIDAD IDENTIFICADOR
+Rule 6     estado -> PRIORIDAD IDENTIFICADOR
+
+Terminals, with rules where they appear
+
+ENTERO               : 4 4 4
+IDENTIFICADOR        : 2 2 2 3 3 3 3 5 6
+OPERADOR             : 
+PRIORIDAD            : 2 3 4 5 6
+SIMBOLO              : 
+error                : 
+
+Nonterminals, with rules where they appear
+
+estado               : 1
+expresion            : 0
+fecha                : 1
+genero               : 1
+nombre               : 1
+
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . expresion
+    (1) expresion -> . nombre fecha genero estado
+    (2) nombre -> . PRIORIDAD IDENTIFICADOR IDENTIFICADOR IDENTIFICADOR
+    (3) nombre -> . PRIORIDAD IDENTIFICADOR IDENTIFICADOR IDENTIFICADOR IDENTIFICADOR
+
+    PRIORIDAD       shift and go to state 3
+
+    expresion                      shift and go to state 1
+    nombre                         shift and go to state 2
+
+state 1
+
+    (0) S' -> expresion .
+
+
+
+state 2
+
+    (1) expresion -> nombre . fecha genero estado
+    (4) fecha -> . PRIORIDAD ENTERO ENTERO ENTERO
+
+    PRIORIDAD       shift and go to state 5
+
+    fecha                          shift and go to state 4
+
+state 3
+
+    (2) nombre -> PRIORIDAD . IDENTIFICADOR IDENTIFICADOR IDENTIFICADOR
+    (3) nombre -> PRIORIDAD . IDENTIFICADOR IDENTIFICADOR IDENTIFICADOR IDENTIFICADOR
+
+    IDENTIFICADOR   shift and go to state 6
+
+
+state 4
+
+    (1) expresion -> nombre fecha . genero estado
+    (5) genero -> . PRIORIDAD IDENTIFICADOR
+
+    PRIORIDAD       shift and go to state 8
+
+    genero                         shift and go to state 7
+
+state 5
+
+    (4) fecha -> PRIORIDAD . ENTERO ENTERO ENTERO
+
+    ENTERO          shift and go to state 9
+
+
+state 6
+
+    (2) nombre -> PRIORIDAD IDENTIFICADOR . IDENTIFICADOR IDENTIFICADOR
+    (3) nombre -> PRIORIDAD IDENTIFICADOR . IDENTIFICADOR IDENTIFICADOR IDENTIFICADOR
+
+    IDENTIFICADOR   shift and go to state 10
+
+
+state 7
+
+    (1) expresion -> nombre fecha genero . estado
+    (6) estado -> . PRIORIDAD IDENTIFICADOR
+
+    PRIORIDAD       shift and go to state 12
+
+    estado                         shift and go to state 11
+
+state 8
+
+    (5) genero -> PRIORIDAD . IDENTIFICADOR
+
+    IDENTIFICADOR   shift and go to state 13
+
+
+state 9
+
+    (4) fecha -> PRIORIDAD ENTERO . ENTERO ENTERO
+
+    ENTERO          shift and go to state 14
+
+
+state 10
+
+    (2) nombre -> PRIORIDAD IDENTIFICADOR IDENTIFICADOR . IDENTIFICADOR
+    (3) nombre -> PRIORIDAD IDENTIFICADOR IDENTIFICADOR . IDENTIFICADOR IDENTIFICADOR
+
+    IDENTIFICADOR   shift and go to state 15
+
+
+state 11
+
+    (1) expresion -> nombre fecha genero estado .
+
+    $end            reduce using rule 1 (expresion -> nombre fecha genero estado .)
+
+
+state 12
+
+    (6) estado -> PRIORIDAD . IDENTIFICADOR
+
+    IDENTIFICADOR   shift and go to state 16
+
+
+state 13
+
+    (5) genero -> PRIORIDAD IDENTIFICADOR .
+
+    PRIORIDAD       reduce using rule 5 (genero -> PRIORIDAD IDENTIFICADOR .)
+
+
+state 14
+
+    (4) fecha -> PRIORIDAD ENTERO ENTERO . ENTERO
+
+    ENTERO          shift and go to state 17
+
+
+state 15
+
+    (2) nombre -> PRIORIDAD IDENTIFICADOR IDENTIFICADOR IDENTIFICADOR .
+    (3) nombre -> PRIORIDAD IDENTIFICADOR IDENTIFICADOR IDENTIFICADOR . IDENTIFICADOR
+
+    PRIORIDAD       reduce using rule 2 (nombre -> PRIORIDAD IDENTIFICADOR IDENTIFICADOR IDENTIFICADOR .)
+    IDENTIFICADOR   shift and go to state 18
+
+
+state 16
+
+    (6) estado -> PRIORIDAD IDENTIFICADOR .
+
+    $end            reduce using rule 6 (estado -> PRIORIDAD IDENTIFICADOR .)
+
+
+state 17
+
+    (4) fecha -> PRIORIDAD ENTERO ENTERO ENTERO .
+
+    PRIORIDAD       reduce using rule 4 (fecha -> PRIORIDAD ENTERO ENTERO ENTERO .)
+
+
+state 18
+
+    (3) nombre -> PRIORIDAD IDENTIFICADOR IDENTIFICADOR IDENTIFICADOR IDENTIFICADOR .
+
+    PRIORIDAD       reduce using rule 3 (nombre -> PRIORIDAD IDENTIFICADOR IDENTIFICADOR IDENTIFICADOR IDENTIFICADOR .)
+
